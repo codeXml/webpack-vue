@@ -3,12 +3,12 @@ const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = (env, argv) => {
-    const devMode = argv.mode !== 'production'
+    const devMode = argv.mode !== 'production';
     return {
         mode: 'production', // development | production
         entry: ["babel-polyfill", path.resolve(__dirname, './src/index.js')],
         output: {
-            path: path.resolve(__dirname, 'dist/static'),
+            path: path.resolve(__dirname, 'dist'),
             filename: "[name].[chunkhash].js"
         },
         module: {
@@ -31,10 +31,10 @@ module.exports = (env, argv) => {
                 }, {
                     test: /\.(sa|sc|c)ss$/,
                     use: [
-                        devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
-                        'css-loader',
-                        'postcss-loader',
-                        'sass-loader',
+                        MiniCssExtractPlugin.loader,
+                        { loader: "css-loader" },
+                        { loader: "postcss-loader" },
+                        { loader: "sass-loader" }
                     ]
                 }
             ]
@@ -45,8 +45,8 @@ module.exports = (env, argv) => {
                 filename: "./index.html"
             }),
             new MiniCssExtractPlugin({
-                filename: devMode ? '[name].js' : '[name].[hash].css',
-                chunkFilename: devMode ? '[id].css' : '[name].[hash].css',
+                filename: devMode ? 'css/[name].css' : 'css/[name].[hash].css',
+                chunkFilename: devMode ? 'css/[name].css' : 'css/[name].[hash].css',
             })
         ]
     }

@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = (env, argv) => {
     const devMode = argv.mode !== 'production';
@@ -9,7 +10,7 @@ module.exports = (env, argv) => {
         entry: ["babel-polyfill", path.resolve(__dirname, './src/index.js')],
         output: {
             path: path.resolve(__dirname, 'dist'),
-            filename: "[name].[chunkhash].js"
+            filename: "js/[name].[chunkhash].js"
         },
         module: {
             rules: [
@@ -45,9 +46,10 @@ module.exports = (env, argv) => {
                 filename: "./index.html"
             }),
             new MiniCssExtractPlugin({
-                filename: devMode ? 'css/[name].css' : 'css/[name].[hash].css',
-                chunkFilename: devMode ? 'css/[name].css' : 'css/[name].[hash].css',
-            })
+                filename: 'css/[name].[hash].css',
+                chunkFilename: 'css/[name].[hash].css',
+            }),
+            new CleanWebpackPlugin()
         ]
     }
 }

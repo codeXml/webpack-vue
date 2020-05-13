@@ -37,6 +37,20 @@ module.exports = (env, argv) => {
                         { loader: "postcss-loader" },
                         { loader: "sass-loader" }
                     ]
+                },
+                {
+                    test: /\.(png|jpg|jpeg|gif)$/,
+                    use: [
+                        {
+                            loader: 'file-loader',
+                            options: {
+                                name: devMode ? '[name].[ext]' : '[hash].[ext]',
+                                limit:100000,//限制图片大小 <= 100kb 进行base64编码（小于100kb打包进js文件）--测试时根据图片的大小调整
+                                publicPath: devMode ?  '../' : '../dist/',
+                                outputPath: 'img/',
+                            }
+                        }
+                    ]
                 }
             ]
         },

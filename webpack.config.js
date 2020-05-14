@@ -7,7 +7,10 @@ module.exports = (env, argv) => {
     // 这里的argv.mode只有当package.json/scripts/start或build参数加了--mode production | --mode development才有值
     const devMode = argv.mode !== 'production';
     return {
-        entry: ["babel-polyfill", path.resolve(__dirname, './src/index.js')],
+        entry: [
+            "babel-polyfill", // 解决浏览器对js语法的兼容性
+            path.resolve(__dirname, './src/index.js') // 单入口文件
+        ],
         output: {
             path: path.resolve(__dirname, 'dist'),
             filename: "js/[name].[chunkhash].js"
@@ -64,6 +67,16 @@ module.exports = (env, argv) => {
                 filename: 'css/[name].[hash].css',
                 chunkFilename: 'css/[name].[hash].css',
             }),
-        ]
+        ],
+        devServer:{
+            // 设置基本目录结构
+            contentBase:path.resolve(__dirname,'./'),
+            //服务器的ip地址 可以使用ip也可以使用localhost
+            host:'localhost',
+            //服务器压缩是否开启
+            compress:true,
+            //配置服务端口号
+            port:9999
+        }
     }
 }

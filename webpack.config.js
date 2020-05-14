@@ -4,10 +4,9 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = (env, argv) => {
+    // 这里的argv.mode只有当package.json/scripts/start或build参数加了--mode production | --mode development才有值
     const devMode = argv.mode !== 'production';
-    // console.log()
     return {
-        mode: 'production', // development | production
         entry: ["babel-polyfill", path.resolve(__dirname, './src/index.js')],
         output: {
             path: path.resolve(__dirname, 'dist'),
@@ -33,7 +32,7 @@ module.exports = (env, argv) => {
                 }, {
                     test: /\.(sa|sc|c)ss$/, // 压缩css文件
                     use: [
-                        MiniCssExtractPlugin.loader,
+                        devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
                         { loader: "css-loader" },
                         { loader: "postcss-loader" },
                         { loader: "sass-loader" }
@@ -45,7 +44,8 @@ module.exports = (env, argv) => {
                         {
                             loader: 'file-loader',
                             options: {
-                                publicPath: '../img/', // 引入图片的图片路径，比如css引入的图片路径'../images/xx.jpg'将变为‘../img/xx.jpg’
+                                name: devMode ? '[name].[ext]' : '[hash].[ext]',
+                                publicPath: devMode ? '../src/images/' : '../img/', // 引入图片的图片路径，比如css引入的图片路径'../images/xx.jpg'将变为‘../img/xx.jpg’
                                 outputPath: 'img/', // 打包后存放的目录
                                 emitFile: true
                             }
@@ -55,6 +55,7 @@ module.exports = (env, argv) => {
             ]
         },
         plugins: [
+            new CleanWebpackPlugin(), // 打包之前清理上一次打包的文件夹
             new HtmlWebPackPlugin({ // html打包压缩插件，若无此项，html文件将不会压缩也不会进入打包目录
                 template: "index.html",
                 filename: "./index.html"
@@ -63,7 +64,6 @@ module.exports = (env, argv) => {
                 filename: 'css/[name].[hash].css',
                 chunkFilename: 'css/[name].[hash].css',
             }),
-            new CleanWebpackPlugin(), // 打包之前清理上一次打包的文件夹
         ]
     }
 }

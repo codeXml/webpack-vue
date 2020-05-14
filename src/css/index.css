@@ -2,4 +2,5 @@
     height: 100px;
     background: url("../images/2.jpg") no-repeat 50%;
     background-size: cover;
+    color: red;
 }

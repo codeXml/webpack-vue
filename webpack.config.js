@@ -2,14 +2,25 @@ const path = require('path');
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+
+function resolve (dir) {
+    return path.join(__dirname, '..', dir);
+}
 
 module.exports = (env, argv) => {
     // 这里的argv.mode只有当package.json/scripts/start或build参数加了--mode production | --mode development才有值
     const devMode = argv.mode !== 'production';
     return {
+        resolve: {
+            extensions: ['.vue','.js','.css'], // 配置了这一项，引入的对应文件后缀自动解析，比如引入app.vue,只需要写app即可
+            alias: {
+                'vue$': 'vue/dist/vue.esm.js' //内部为正则表达式  vue结尾的
+            }
+        },
         entry: [
             "babel-polyfill", // 解决浏览器对js语法的兼容性
-            path.resolve(__dirname, './src/index.js') // 单入口文件
+            path.resolve(__dirname, './src/index.js') // 入口文件
         ],
         output: {
             path: path.resolve(__dirname, 'dist'),
@@ -42,15 +53,23 @@ module.exports = (env, argv) => {
                     ]
                 },
                 {
+                    test: /\.vue$/,
+                    loader: 'vue-loader',
+                    options: {
+                        loaders: {}
+                    }
+                },
+                {
                     test: /\.(png|jpg|jpeg|gif)$/, // 打包图片文件到指定目录
                     use: [
                         {
                             loader: 'file-loader',
                             options: {
-                                name: devMode ? '[name].[ext]' : '[hash].[ext]',
-                                publicPath: devMode ? '../src/images/' : '../img/', // 引入图片的图片路径，比如css引入的图片路径'../images/xx.jpg'将变为‘../img/xx.jpg’
-                                outputPath: 'img/', // 打包后存放的目录
-                                emitFile: true
+                                context: __dirname + '/',
+                                name: devMode ? '[path][name].[ext]' : '[hash].[ext]',
+                                // publicPath: devMode ? 'src/assets' : '../dist/img/', // 引入图片的图片路径，比如css引入的图片路径'../images/xx.jpg'将变为‘../img/xx.jpg’
+                                outputPath: devMode ? '' : 'img/', // 打包后存放的目录
+                                esModule: false // 此项为webpack4新特性，不设置则引入的图片路径均变为[object module]
                             }
                         }
                     ]
@@ -67,6 +86,7 @@ module.exports = (env, argv) => {
                 filename: 'css/[name].[hash].css',
                 chunkFilename: 'css/[name].[hash].css',
             }),
+            new VueLoaderPlugin()
         ],
         devServer:{
             // 设置基本目录结构
